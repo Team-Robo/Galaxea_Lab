@@ -31,12 +31,11 @@ class GalaxeaR1ReachEnvCfg(ReachEnvCfg):
         self.scene.robot = GALAXEA_R1_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         self.scene.robot.init_state.pos = (0, 0, 0)
         # override rewards
-        self.rewards.right_end_effector_position_tracking.params["asset_cfg"].body_names = ["right_gripper_2_Link"]
-        self.rewards.right_end_effector_position_tracking_fine_grained.params["asset_cfg"].body_names = ["right_gripper_2_Link"]
-        self.rewards.right_end_effector_orientation_tracking.params["asset_cfg"].body_names = ["right_gripper_2_Link"]
-        self.rewards.left_end_effector_position_tracking.params["asset_cfg"].body_names = ["left_gripper_1_Link"]
-        self.rewards.left_end_effector_position_tracking_fine_grained.params["asset_cfg"].body_names = ["left_gripper_1_Link"]
-        self.rewards.left_end_effector_orientation_tracking.params["asset_cfg"].body_names = ["left_gripper_1_Link"]
+	# override rewards
+        self.rewards.end_effector_position_tracking.params["asset_cfg"].body_names = ["right_gripper_2_Link"]
+        self.rewards.end_effector_position_tracking_fine_grained.params["asset_cfg"].body_names = ["right_gripper_2_Link"]
+        self.rewards.end_effector_orientation_tracking.params["asset_cfg"].body_names = ["right_gripper_2_Link"]
+       
 
         # override actions
         self.actions.arm_action = mdp.JointPositionActionCfg(
@@ -44,12 +43,8 @@ class GalaxeaR1ReachEnvCfg(ReachEnvCfg):
         )
         # override command generator body
         # end-effector is along z-direction
-        self.commands.ee_pose_right.body_name = "right_gripper_2_Link"
-        self.commands.ee_pose_right.ranges.pitch = (0, 0)
-        self.commands.ee_pose_right.ranges.pitch = (-0.5*math.pi, 0.5*math.pi)
-        self.commands.ee_pose_left.body_name = "left_gripper_1_Link"
-        self.commands.ee_pose_left.ranges.pitch = (0, 0)
-        self.commands.ee_pose_left.ranges.pitch = (-0.5*math.pi, 0.5*math.pi)
+        self.commands.ee_pose.body_name = "right_gripper_2_Link"
+        self.commands.ee_pose.ranges.pitch = (-0.5 * math.pi, 0.5 * math.pi)
 
 
 @configclass
