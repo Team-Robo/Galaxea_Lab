@@ -38,17 +38,26 @@ def main():
     num_envs = env.unwrapped.num_envs
 
     # ----------------------------
-    # LEFT ARM: move to fixed pose
+    # LEFT ARM TARGET: move to fixed pose
     # ----------------------------
-    left_position = torch.tensor(
-    [[0.40, 0.25, 0.45]],
+    left_target_position = torch.tensor(
+    [[-0.40, -0.25, 0.45]],
     device=device,
     ).repeat(num_envs, 1)
 
-    left_orientation = torch.tensor(
+    left_target_orientation = torch.tensor(
         [[1.0, 0.0, 0.0, 0.0]],
         device=device,
     ).repeat(num_envs, 1)
+
+    left_target_gripper = torch.ones((num_envs, 1), device=device)
+
+    # ----------------------------
+    # LEFT ARM INITIAL:
+    # ----------------------------
+    left_position = LEFT_EE_POSE[0:3].to(device).unsqueeze(0).repeat(num_envs, 1)
+
+    left_orientation = LEFT_EE_POSE[3:].to(device).unsqueeze(0).repeat(num_envs, 1)
 
     left_gripper = torch.ones((num_envs, 1), device=device)
 
@@ -79,8 +88,37 @@ def main():
     print("actions shape:", actions.shape)
     print("action space:", env.unwrapped.action_space.shape)
 
-    while simulation_app.is_running():
-        with torch.inference_mode():
+    num_steps = 100
+    with torch.inference_mode():
+        # interpolate from start to target over num_steps
+        for count in range(num_steps):
+            t = (count + 1) / num_steps
+            actions = torch.cat(
+                [
+                    left_position + t * (left_target_position - left_position),
+                    left_orientation + t * (left_target_orientation - left_orientation),
+                    left_gripper,
+                    right_position,
+                    right_orientation,
+                    right_gripper,
+                ],
+                dim=-1,
+            )
+            env.step(actions)
+
+        # hold at target pose
+        actions = torch.cat(
+            [
+                left_target_position,
+                left_target_orientation,
+                left_target_gripper,
+                right_position,
+                right_orientation,
+                right_gripper,
+            ],
+            dim=-1,
+        )
+        while simulation_app.is_running():
             env.step(actions)
 
     env.close()
