@@ -26,12 +26,12 @@ from omni.isaac.lab_tasks.utils.parse_cfg import parse_env_cfg
 def main():
     # create environment config
     env_cfg: LiftEnvCfg = parse_env_cfg(
-        "Isaac-Lift-Bin-R1-IK-Abs-v0",
+        "Isaac-Lift-Cube-R1-IK-Abs-v0",
         num_envs=args_cli.num_envs,
     )
-
+    env_cfg.episode_length_s = 100.0
     # create environment
-    env = gym.make("Isaac-Lift-Bin-R1-IK-Abs-v0", cfg=env_cfg)
+    env = gym.make("Isaac-Lift-Cube-R1-IK-Abs-v0", cfg=env_cfg)
     env.reset()
 
     device = env.unwrapped.device
@@ -84,6 +84,7 @@ def main():
             else:
                 left_gripper = torch.ones((num_envs, 1), device=device)
                 right_gripper = torch.ones((num_envs, 1), device=device)
+                count = 0
             actions = torch.cat(
             [
                 left_position,
@@ -97,7 +98,7 @@ def main():
             )
             env.step(actions)
             count += 1
-
+        print(count)
     env.close()
 
 

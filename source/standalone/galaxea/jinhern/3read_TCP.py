@@ -26,12 +26,12 @@ from omni.isaac.lab_tasks.utils.parse_cfg import parse_env_cfg
 def main():
     # create environment config
     env_cfg: LiftEnvCfg = parse_env_cfg(
-        "Isaac-Lift-Bin-R1-IK-Abs-v0",
+        "Isaac-Lift-Cube-R1-IK-Abs-v0",
         num_envs=args_cli.num_envs,
     )
-
+    env_cfg.episode_length_s = 100.0
     # create environment
-    env = gym.make("Isaac-Lift-Bin-R1-IK-Abs-v0", cfg=env_cfg)
+    env = gym.make("Isaac-Lift-Cube-R1-IK-Abs-v0", cfg=env_cfg)
     env.reset()
 
     device = env.unwrapped.device
@@ -69,6 +69,9 @@ def main():
         ],
         dim=-1,
     )
+    # print("argument", args_cli)
+    print("Type of env.wrapped:", type(env.unwrapped))
+    print("All the attributes and methods in env.wrapped:", dir(env.unwrapped))
 
     print("actions shape:", actions.shape)
     print("action space:", env.unwrapped.action_space.shape)

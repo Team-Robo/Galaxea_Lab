@@ -16,6 +16,7 @@ import gymnasium as gym
 import torch
 
 import omni.isaac.lab_tasks  # noqa: F401
+from omni.isaac.lab.utils.math import quat_mul
 from omni.isaac.lab_tasks.galaxea.manager_based.lift.config.agents.init_pose import (
     RIGHT_EE_POSE, LEFT_EE_POSE)
 
@@ -26,12 +27,12 @@ from omni.isaac.lab_tasks.utils.parse_cfg import parse_env_cfg
 def main():
     # create environment config
     env_cfg: LiftEnvCfg = parse_env_cfg(
-        "Isaac-Lift-Bin-R1-IK-Abs-v0",
+        "Isaac-Lift-Cube-R1-IK-Abs-v0",
         num_envs=args_cli.num_envs,
     )
-
+    env_cfg.episode_length_s = 100.0
     # create environment
-    env = gym.make("Isaac-Lift-Bin-R1-IK-Abs-v0", cfg=env_cfg)
+    env = gym.make("Isaac-Lift-Cube-R1-IK-Abs-v0", cfg=env_cfg)
     env.reset()
 
     device = env.unwrapped.device
@@ -72,8 +73,16 @@ def main():
 
     print("actions shape:", actions.shape)
     print("action space:", env.unwrapped.action_space.shape)
-    count = 0
+    object_data = env.unwrapped.scene["object"].data
+    left_ee_frame = env.unwrapped.scene["left_ee_frame"]
+    left_start_orientation = left_ee_frame.data.target_quat_w[..., 0, :].clone()
+    rotation_90_z = torch.tensor(
+        [0.7071, 0.0, 0.0, 0.7071], device=device
+    ).repeat(num_envs, 1)
+    left_target_orientation = quat_mul(left_orientation, rotation_90_z)
 
+    count = 0
+    print("left orientation: ", left_orientation)
     while simulation_app.is_running():
         with torch.inference_mode():
 
@@ -86,13 +95,43 @@ def main():
             )
 
             # make left arm follow object, but stay above it
-            left_position = object_position.clone()
-            left_position[:, 1] += 0.15
-            left_position[:, 2] -= 0.15
+            if count < 500:
+                print("Approach to object")
+                left_position = object_position.clone()
+                # left_position[:, 1] += 0.15
+                left_position[:, 2] += 0.15
+
+                alpha = (count + 1) / 500.0
+                left_orientation = torch.nn.functional.normalize(
+                    torch.lerp(
+                        left_start_orientation, left_target_orientation, alpha
+                    ),
+                    dim=-1,
+                )
 
             # keep left gripper open
-            left_gripper = torch.ones((num_envs, 1), device=device)
+            elif count < 600:
+                print("Open gripper")
+                left_gripper = torch.ones((num_envs, 1), device=device)
+            
+            # go down to object
+            elif count < 900:
+                print("Go down")
+                left_position = object_position.clone()
+                left_position[:, 2] -= 0.10
+            
+            elif count < 1100:
+                print("Close gripper")
+                left_gripper = -torch.ones((num_envs, 1), device=device)
 
+            elif count < 1400:
+                print("Going up")
+                left_position = object_position.clone()
+                #left_position[:, 1] += 0.15
+                left_position[:, 2] += 0.15
+            
+            if count == 2000: 
+                count = 0
             actions = torch.cat(
                 [
                     left_position,
@@ -107,7 +146,7 @@ def main():
 
             env.step(actions)
 
-            if count % 50 == 0:
+            if count % 100 == 0:
                 print("object position:", object_position)
                 print("left target position:", left_position)
 
