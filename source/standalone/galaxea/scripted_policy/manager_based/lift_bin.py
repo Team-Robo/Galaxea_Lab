@@ -243,7 +243,7 @@ class PickAndLiftSm:
     ):
         """Compute the desired state of the robot's end-effector and the gripper."""
         # convert all transformations from (w, x, y, z) to (x, y, z, w)
-        ee_pose = ee_pose[:, [0, 1, 2, 4, 5, 6, 3]]
+        ee_pose = ee_pose[:, [0, 1, 2, 4, 5, 6, 3]]     # destination + orientation, so is (x,y,z, (q), w)
         object_pose = object_pose[:, [0, 1, 2, 4, 5, 6, 3]]
         des_object_pose = des_object_pose[:, [0, 1, 2, 4, 5, 6, 3]]
 

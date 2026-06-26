@@ -53,7 +53,7 @@ def main():
     # ----------------------------
     # LEFT ARM INITIAL:
     # ----------------------------
-    left_position = LEFT_EE_POSE[0:3].to(device).unsqueeze(0).repeat(num_envs, 1)
+    left_position = LEFT_EE_POSE[0:3].to(device).unsqueeze(0)
 
     left_orientation = LEFT_EE_POSE[3:].to(device).unsqueeze(0).repeat(num_envs, 1)
 
@@ -71,7 +71,13 @@ def main():
     # Full R1 action:
     # left_xyz + left_quat + left_gripper
     # right_xyz + right_quat + right_gripper
-    actions = torch.cat(
+    print("Information: ", left_position,
+            left_orientation,
+            left_gripper,
+            right_position,
+            right_orientation,
+            right_gripper)
+    actions = torch.cat(    
         [
             left_position,
             left_orientation,
