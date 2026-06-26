@@ -1,2 +1,6 @@
 *.pyc
 _isaac_sim
+
+.vscode/browse.vc.db
+**/.vscode/*.db
+.vscode/ipch/
