@@ -80,12 +80,11 @@ def main():
     object_data = env.unwrapped.scene["object"].data
     left_ee_frame = env.unwrapped.scene["left_ee_frame"]
     left_start_orientation = left_ee_frame.data.target_quat_w[..., 0, :].clone()
-    rotation_90_z = torch.tensor(
-        [0.7071, 0.0, 0.0, 0.7071], device=device
-    ).repeat(num_envs, 1)
+    rotation_90_z = torch.tensor([0.7071, 0.0, 0.0, -0.7071], device=device).repeat(num_envs, 1)
+    rotation_180_y = torch.tensor([0, 0, -1, 0], device = device).repeat(num_envs, 1)
     # print(object_data.root_quat_w.clone()[0])
-    # left_target_orientation = quat_mul(object_data.root_quat_w, rotation_90_z)
-    left_target_orientation = quat_mul(left_orientation, rotation_90_z)
+    left_inter_orientation = quat_mul(object_data.root_quat_w, rotation_180_y)
+    left_target_orientation = quat_mul(left_inter_orientation, rotation_90_z)
     count = 0
     state = 1
     def reached(target):
@@ -142,13 +141,15 @@ def main():
 
             elif state == PickState.CLOSE:
                 left_gripper = -torch.ones((num_envs, 1), device = device)
+
+                lift_position = left_position.clone()
+                lift_position[:, 2] += 0.07
+
                 state = PickState.LIFT
 
             elif state == PickState.LIFT:
-                up_position = object_position.clone()
-                up_position[:, 2] += 0.1
-                if not reached(up_position):
-                    left_position = torch.lerp(left_position, up_position, 0.01)
+                if not reached(lift_position):
+                    left_position = torch.lerp(left_position, lift_position, 0.01)
                 else:
                     state = PickState.REST
             
