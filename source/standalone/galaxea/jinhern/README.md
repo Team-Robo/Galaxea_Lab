@@ -64,7 +64,7 @@ Keep the repository somewhere under your home directory:
 ```bash
 mkdir -p "$HOME/robotics"
 cd "$HOME/robotics"
-git clone https://github.com/jinhern424/Galaxea_Lab.git
+git clone https://github.com/Team-Robo/Galaxea_Lab.git
 cd Galaxea_Lab
 git switch laptop4050-working
 git status
@@ -149,39 +149,7 @@ cd "$HOME/robotics/Galaxea_Lab"
 Do not create a new container with a separate `docker run` command unless you
 deliberately want to maintain a second Docker configuration.
 
-## 5. Optional: use tmux in the container
-
-`tmux` keeps a shell session alive if your terminal disconnects. Install it in
-the running container if it is not present:
-
-```bash
-apt-get update
-apt-get install -y tmux
-tmux new -s galaxea
-```
-
-Useful shortcuts:
-
-| Action | Shortcut |
-|---|---|
-| New window | `Ctrl+b`, then `c` |
-| Next window | `Ctrl+b`, then `n` |
-| Split vertically | `Ctrl+b`, then `%` |
-| Split horizontally | `Ctrl+b`, then `"` |
-| Move between panes | `Ctrl+b`, then an arrow key |
-| Detach | `Ctrl+b`, then `d` |
-
-Reconnect with:
-
-```bash
-tmux attach -t galaxea
-```
-
-Installing a package interactively changes the current container, not the
-Dockerfile. It will need to be installed again after the container is removed
-and rebuilt unless it is added to the image.
-
-## 6. Verify Isaac Lab and Galaxea R1
+## 5. Verify Isaac Lab and Galaxea R1
 
 Run all tutorial commands from `/workspace/isaaclab` inside Docker:
 
@@ -199,7 +167,7 @@ The first Isaac Sim launch may pause while shaders and extensions are cached.
 Wait for the environment to finish loading. Stop a running example with
 `Ctrl+C` before launching another Isaac Sim process.
 
-## 7. Beginner Galaxea tutorial sequence
+## 6. Beginner Galaxea tutorial sequence
 
 The files under `source/standalone/galaxea/jinhern/` are intended to be read in
 roughly this order:
@@ -237,7 +205,7 @@ Run the reusable simple API example:
 `robot.pick(...)` or `robot.place(...)` once per simulation loop and sends one
 complete action with `env.step(robot.build_action())`.
 
-## 8. Perception-only tutorial
+## 7. Perception-only tutorial
 
 Run:
 
@@ -268,7 +236,7 @@ camera is 480×640, and RGB may contain a fourth alpha channel. Depth is normall
 plane. Depth is normalized only for the PNG preview—the original tensor remains
 metric.
 
-## 9. Combined perception and simple-API tutorial
+## 8. Combined perception and simple-API tutorial
 
 Run:
 
@@ -298,7 +266,7 @@ Output images are written to:
 /workspace/isaaclab/data/perception_simple_api/
 ```
 
-## 10. Why `--headless` and `--enable_cameras` matter
+## 9. Why `--headless` and `--enable_cameras` matter
 
 Use `--headless` in Docker unless working X11 forwarding has been configured.
 Without it, Isaac Sim may try to open a native window and report GLFW or
@@ -317,7 +285,7 @@ Therefore, the normal camera combination is:
 --headless --enable_cameras
 ```
 
-## 11. Optional WebRTC visualization
+## 10. Optional WebRTC visualization
 
 Do not start `isaac-sim.headless.webrtc.sh` separately and then launch an Isaac
 Lab tutorial. The tutorial itself starts Isaac Sim. Instead, enable WebRTC on
@@ -350,7 +318,7 @@ ss -ltnp | grep 8211
 If the page returns `Not Found`, use the WebRTC client/URL supplied with your
 specific Isaac Sim 4.0 container build; streaming client packaging can differ.
 
-## 12. Copy generated images to the host
+## 11. Copy generated images to the host
 
 Because these tutorials currently write to `/workspace/isaaclab/data`, copy
 their output before removing the container. Run this on the host while the
@@ -366,7 +334,7 @@ Alternatively, change a tutorial's output directory to
 `/workspace/isaaclab/data_storage/...`; `data_storage` is backed by the
 `isaac-lab-data` named volume in this repository's Compose configuration.
 
-## 13. Stop or remove the container
+## 12. Stop or remove the container
 
 Exit the container shell without stopping the background container:
 
@@ -384,7 +352,7 @@ Your host-side source edits and Git history remain. Named Docker volumes retain
 the configured caches and `data_storage`, but unmounted files elsewhere in the
 container do not.
 
-## 14. Edit with VS Code
+## 13. Edit with VS Code
 
 Open the host checkout:
 
@@ -403,7 +371,7 @@ git diff
 Avoid editing files as root in the container when possible; that may create
 host files owned by root.
 
-## 15. Correct Isaac Lab application startup pattern
+## 14. Correct Isaac Lab application startup pattern
 
 Standalone scripts must launch the application before importing Isaac Lab
 runtime modules:
@@ -426,7 +394,7 @@ simulation_app = app_launcher.app
 Passing the complete `args_cli` namespace preserves options such as
 `--headless`, `--enable_cameras`, and `--livestream`.
 
-## 16. Frames and pose sources used by the tutorials
+## 15. Frames and pose sources used by the tutorials
 
 - **World frame:** the global simulator coordinate frame. Object position is
   available as `object.data.root_pos_w`.
@@ -441,7 +409,7 @@ The combined tutorial uses ground truth so that beginners can first validate
 the camera and robot API independently. It does not claim that the camera has
 located the object.
 
-## 17. Troubleshooting
+## 16. Troubleshooting
 
 ### Docker cannot see the GPU
 
@@ -519,7 +487,7 @@ git diff
 
 The default Compose file does not bind-mount every repository-root file.
 
-## 18. Optional ROS 2 image
+## 17. Optional ROS 2 image
 
 ROS 2 is not needed for the tutorials above. If later work requires ROS 2, use
 the repository's ROS 2 image profile:
@@ -531,7 +499,7 @@ the repository's ROS 2 image profile:
 
 Do not add ROS 2 complexity until the standalone Isaac Lab examples work.
 
-## 19. Git workflow
+## 18. Git workflow
 
 Before editing:
 
